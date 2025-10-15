@@ -30,7 +30,7 @@ Trip Duration Bands:
 Mileage Efficiency Bonus:
 - Ideal range: 180–220 miles/day. Users within this range appear to receive optimal results.
 - Below or above this mileage window leads to diminishing returns.
-- There may be a nonlinear scaling penalty for exceeding thresholds (~250+ miles/day).
+- There may be a nonlinear scaling penalty for exceeding thresholds (250+ miles/day).
 
 Receipt-Based Adjustments:
 - Smaller total receipt amounts (or no receipts at all) may result in higher per diem application, suggesting that the system sometimes favors minimal receipts.
@@ -38,11 +38,11 @@ Receipt-Based Adjustments:
 
 Temporal Variability Factors:
 - End-of-quarter submissions tend to yield higher reimbursement.
-- Tuesday and Thursday submissions outperform others; Friday has an ~8% drop in average reimbursements.
-- Lunar cycle effects are unconfirmed but noted in user perception—possibly noise or unexplained timing artifacts.
+- Tuesday and Thursday submissions outperform others; Friday has an 8% drop in average reimbursements.
+- Lunar cycle effects are unconfirmed but noted, so could possibly be noise or unexplained timing artifacts.
 
 Inconsistency Threshold:
-- Identical trips may vary by 5–10% in reimbursement due to undocumented internal variability—likely a combination of rounding, bugs, or batch timing artifacts.
+- Identical trips may vary by 5–10% in reimbursement due to undocumented internal variability likely a combination of rounding, bugs, or batch timing artifacts.
 - These inconsistencies must be preserved in the replica system to maintain fidelity.
 
 Fixed Ceiling Effect:
@@ -55,13 +55,13 @@ Fixed Ceiling Effect:
 Based on the transcript patterns and observed behavior in historical factors, we hypothesize the following hierarchy of feature importance: 
 - Trip Duration – Primary driver of reimbursement banding. Determines eligibility for bonuses or penalties.
 
-- Miles per Day (Derived Feature) – Efficiency calculation based on total miles divided by days. Strong indicator of favorable reimbursement zones.
+- Miles per Day (Derived Feature) Efficiency calculation based on total miles divided by days. Strong indicator of favorable reimbursement zones.
 
 - Receipt Total – Nonlinear influence. Smaller totals may be over-rewarded; larger totals encounter penalties or flat caps.
 
 - Trip Timing – Submission timing (day of week, quarter) appears to nudge outcomes slightly—secondary effect.
 
-- Receipt Count (Implied from Total) – Minimal or no receipts seem to be overcompensated, suggesting the system prefers simplicity or defaults to per diem.
+- Receipt Count (Implied from Total) Minimal or no receipts seem to be overcompensated, suggesting the system prefers simplicity or defaults to per diem.
 
 ---
 
