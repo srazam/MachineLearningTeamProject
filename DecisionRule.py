@@ -119,7 +119,11 @@ def evaluate(model, X_test, y_test):
     import numpy as np
     rmse = np.sqrt(mean_squared_error(y_test, pred))
     r2 = r2_score(y_test, pred)
-    return mae, rmse, r2
+
+    threshold = 0.05
+    within_threshold = np.abs((y_test - pred) / y_test) <= threshold
+    accuracy_within_threshold = np.mean(within_threshold) * 100
+    return mae, rmse, r2, accuracy_within_threshold
 
 
 def print_and_save_rules(best_tree: DecisionTreeRegressor, feature_names, out_path: Path):
@@ -150,12 +154,14 @@ def main():
     gscv = train_tree(X_train[feature_cols], y_train)
     best_tree = gscv.best_estimator_
 
-    mae, rmse, r2 = evaluate(best_tree, X_test[feature_cols], y_test)
+    mae, rmse, r2, acc_in_thresh = evaluate(best_tree, X_test[feature_cols], y_test)
     print("===== EVALUATION (Decision Tree Rules) =====")
     print(f"Best Params: {gscv.best_params_}")
     print(f"MAE : {mae:,.3f}")
     print(f"RMSE: {rmse:,.3f}")
     print(f"R2  : {r2:,.3f}")
+    print(f"Accuracy within 5%  : {acc_in_thresh:,.3f}%")
+
 
     importances = getattr(best_tree, "feature_importances_", None)
     if importances is not None:
