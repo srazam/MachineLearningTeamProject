@@ -34,7 +34,6 @@ We decided to not use polynomial features since we found that polynomial regress
 - cost_per_day  = receipt_total / days
 - miles_per_day = distance / days
 The domain specific transformations we used were:
-daily_cost = receipt_total / days
 - short_trip_flag = Check if the distance is less than 100
 - long_trip_flag  = Check if the number of days is greater than or equal to 5   
 - high_daily_cost_flag = Check if the daily cost (the receipt total / days) is greater than 150 
