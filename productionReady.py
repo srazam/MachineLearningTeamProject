@@ -1,7 +1,9 @@
 import joblib
 import pandas as pd
 
+# Check for input errors
 def checkErrors(days, miles, receipts):
+    # Ensure that inputs are of correct type
     try:
         days = int(days)
         miles = int(miles)
@@ -9,13 +11,14 @@ def checkErrors(days, miles, receipts):
     except ValueError:
         return "Error: Days and miles must be a whole number while receipts must be a float number. Try again."
     
+    # Ensure that inputs are positive
     if int(days) <= 0 or int(miles) <= 0 or float(receipts) <= 0:
         return "Error: Negative numbers or zero entered. Try again."
     
     return "Input accepted."
 
 def main():
-    # Get user input
+    # Get user input until it's valid
     while True:
         user_days = input("Enter number of days (as a whole number): ")
         user_miles = input("Enter number of miles (as a whole number): ")
@@ -26,11 +29,14 @@ def main():
         if checkErrors(user_days, user_miles, user_receipts) == "Input accepted.":
             break
 
-    print("Calculating predicted reimbursement...\n")
+    print("Calculating the predicted reimbursement...\n")
+
+    # Convert inputs to appropriate types
     user_days = int(user_days)
     user_miles = int(user_miles)
     user_receipts = float(user_receipts)
 
+    # Calculate derived features
     EPS = 1e-6 
     cost_per_mile = user_receipts / (user_miles + EPS)
     cost_per_day  = user_receipts / (user_days + EPS)
@@ -40,8 +46,8 @@ def main():
     else:
         long_trip_flag = 0
 
-    # Load model and make prediction
-    imported_model = joblib.load('MachineLearningTeamProject\\finalModel.pkl')
+    # Load model and make the prediction
+    imported_model = joblib.load('finalModel.pkl')
     df = pd.DataFrame([{
         "miles_traveled": user_days, 
         "trip_duration_days": user_miles, 
