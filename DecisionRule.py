@@ -20,9 +20,10 @@ np.random.seed(RANDOM_STATE)
 
 EPS = 1e-6
 DATA_PATH = Path("public_cases.json")
-OUT_DIR = Path("artifacts")
+OUT_DIR = Path("artifacts_decisionRule")
 OUT_DIR.mkdir(exist_ok=True)
 
+# Load data from JSON file or create synthetic data if file not found
 def load_data(path: Path) -> pd.DataFrame:
     if path.exists():
         try:
@@ -40,10 +41,12 @@ def load_data(path: Path) -> pd.DataFrame:
         print("public_cases.json not found. Using synthetic data (1000 rows).")
     return df
 
+# Clean and preprocess data by renaming columns and converting data to data frames 
 def basic_clean(df: pd.DataFrame) -> pd.DataFrame:
    
     df = df.copy()
 
+    # Separate the input and expected output if in that format
     if set(df.columns) == {"input", "expected_output"}:
         in_df = pd.json_normalize(df["input"])
         out_col = df["expected_output"]
@@ -53,7 +56,10 @@ def basic_clean(df: pd.DataFrame) -> pd.DataFrame:
             out_df = pd.DataFrame({"reimbursement": out_col})
         df = pd.concat([in_df, out_df], axis=1)
 
+    # Flatten any nested structures
     df.columns = [str(c).strip().lower() for c in df.columns]
+
+    # Rename columns to standard names
     rename_map = {
         "trip_duration_days": "days",
         "miles_traveled": "distance",
@@ -65,18 +71,21 @@ def basic_clean(df: pd.DataFrame) -> pd.DataFrame:
     }
     df = df.rename(columns=rename_map)
 
+    # Check for missing required columns
     required = ["days", "distance", "receipt_total", "reimbursement"]
     missing = [c for c in required if c not in df.columns]
+
     if missing:
         print("Available columns now:", list(df.columns))
         raise KeyError(f"Missing required columns after flatten/rename: {missing}")
 
+    # Convert required columns to numeric and drop rows with invalid data
     for c in required:
         df[c] = pd.to_numeric(df[c], errors="coerce")
     df = df.dropna(subset=required).reset_index(drop=True)
     return df
 
-
+# Add derived features to the dataframe
 def make_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["cost_per_mile"] = df["receipt_total"] / (df["distance"] + EPS)
@@ -88,12 +97,14 @@ def make_features(df: pd.DataFrame) -> pd.DataFrame:
     df["high_daily_cost_flag"] = (daily_cost > 150).astype(int)
     return df
 
+# Split the data into training and testing sets
 def split_train_test(df: pd.DataFrame):
     test_size = 250 / len(df) if len(df) >= 1000 else 0.25
     X = df.drop(columns=["reimbursement"])
     y = df["reimbursement"]
     return train_test_split(X, y, test_size=test_size, random_state=RANDOM_STATE)
 
+# Train a decision tree regressor with hyperparameter tuning using grid search
 def train_tree(X_train, y_train) -> GridSearchCV:
     tree = DecisionTreeRegressor(random_state=RANDOM_STATE)
     param_grid = {
@@ -112,6 +123,7 @@ def train_tree(X_train, y_train) -> GridSearchCV:
     gscv.fit(X_train, y_train)
     return gscv
 
+# Evaluate the model on the test set and return accuracy metrics
 def evaluate(model, X_test, y_test):
     pred = model.predict(X_test)
     mae = mean_absolute_error(y_test, pred)
@@ -119,9 +131,13 @@ def evaluate(model, X_test, y_test):
     import numpy as np
     rmse = np.sqrt(mean_squared_error(y_test, pred))
     r2 = r2_score(y_test, pred)
-    return mae, rmse, r2
 
+    threshold = 0.05
+    within_threshold = np.abs((y_test - pred) / y_test) <= threshold
+    accuracy_within_threshold = np.mean(within_threshold) * 100
+    return mae, rmse, r2, accuracy_within_threshold
 
+# Print and save the decision rules from the trained decision tree
 def print_and_save_rules(best_tree: DecisionTreeRegressor, feature_names, out_path: Path):
     rules = export_text(best_tree, feature_names=list(feature_names), decimals=3)
     print("\n===== IF-THEN RULES (Decision Tree) =====\n")
@@ -140,24 +156,31 @@ def main():
         "short_trip_flag","long_trip_flag","high_daily_cost_flag",
     ]
     missing = [c for c in feature_cols + ["reimbursement"] if c not in df.columns]
+    
+    # Check for missing required columns
     if missing:
         raise ValueError(f"Missing columns: {missing}. Available: {df.columns.tolist()}")
 
     df_model = df[feature_cols + ["reimbursement"]].copy()
 
+    # Split data into training and testing sets and train/test the decision tree model
     X_train, X_test, y_train, y_test = split_train_test(df_model)
 
     gscv = train_tree(X_train[feature_cols], y_train)
     best_tree = gscv.best_estimator_
 
-    mae, rmse, r2 = evaluate(best_tree, X_test[feature_cols], y_test)
+    # Evaluate the trained model and display results
+    mae, rmse, r2, acc_in_thresh = evaluate(best_tree, X_test[feature_cols], y_test)
     print("===== EVALUATION (Decision Tree Rules) =====")
     print(f"Best Params: {gscv.best_params_}")
     print(f"MAE : {mae:,.3f}")
     print(f"RMSE: {rmse:,.3f}")
     print(f"R2  : {r2:,.3f}")
+    print(f"Accuracy within 5%  : {acc_in_thresh:,.3f}%")
 
+    # Save and print feature importances if available
     importances = getattr(best_tree, "feature_importances_", None)
+   
     if importances is not None:
         fi = pd.Series(importances, index=feature_cols).sort_values(ascending=False)
         print("\nTop Feature Importances:")
