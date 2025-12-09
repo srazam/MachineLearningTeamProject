@@ -1,4 +1,3 @@
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -19,8 +18,8 @@ RANDOM_STATE = 42
 np.random.seed(RANDOM_STATE)
 
 EPS = 1e-6
-DATA_PATH = Path("public_cases.json")
-OUT_DIR = Path("artifacts_decisionRule")
+DATA_PATH = Path("..\\public_cases.json")
+OUT_DIR = Path("..\\artifacts")
 OUT_DIR.mkdir(exist_ok=True)
 
 # Load data from JSON file or create synthetic data if file not found

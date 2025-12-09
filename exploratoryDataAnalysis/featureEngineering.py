@@ -5,7 +5,7 @@ from pathlib import Path
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler, MinMaxScaler
 
 EPS = 1e-6  #small constant to avoid division-by-zero
-DATA_PATH = Path('public_cases.json') #expected location of the dataset file
+DATA_PATH = Path('..\\public_cases.json') #expected location of the dataset file
 
 if DATA_PATH.exists(): #if the dataset file exists in the working directory...
     try:

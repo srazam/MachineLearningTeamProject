@@ -4,24 +4,26 @@ This project is based on: https://github.com/8090-inc/top-coder-challenge/
 **Scenario**: Your team has been hired as ML consultants by ACME Corporation. Their legacy reimbursement system has been running for 60 years, no one knows how it works, but it is still used daily. A new system has been built, but the ACME Corporation is confused by the differences in results. Your mission is to use machine learning to understand the original business logic and create a model that can explain and predict the legacy system’s behavior.
 
 ### How to Run
-- For '.py' files: change directory into the 'MachineLearningTeamProject' folder and run 'python scriptName.py' in the terminal.
+- For '.py' files: change directory into the 'MachineLearningTeamProject' parent folder then the respective subdirectory. Run 'python scriptName.py' in the terminal.
 - For '.ipynb' files: run individual cells in order using the ctrl+Enter or press the play button on the top left of every cell. You can also run all cells at the same time by running the play all button at the top.
 
 ### Exploratory Data Analysis
-The following files contains our work for the exploratory data analysis phase
+The following files contains our work for the exploratory data analysis phase. All these files are found in the 'exploratoryDataAnalysis' folder.
 - dataExp.ipynb: Data exploration report including a statistical summary of all variables, distribution analysis/visualization, correlation analysis, outlier detection/analysis, missing data assessment
 - featureEngineering.py: Feature engineering strategies including derived features, interaction terms, polynomial features, domain-specific transformations, feature scaling, and normalization approaches
 - TechnicalReport.md: Business logic hypothesis technical report incluidng analysis of PRD/interview transcripts, proposed business rules/logic patterns, feature importance hypotheses, potential non-linear relationships identification
 
 ### Model Evaluation Framework
-For each model, Grid Search was used (where cross validaiton parameter = 5) and used MAE, RMSE, and accuracy within thresholds as evaluation metrics. 
+For each model, Grid Search was used (where cross validaiton parameter = 5) and used MAE, R^2 value, and accuracy within thresholds as evaluation metrics. Each model was trained and tested using an 75/25 train/test split. The following files contains our work for the model evaluation framework phase. All these files are found in the 'modelEvaluationFramework' folder.
 - DecisionRule.py - implemented rule-based learning, specifically Decision rule extraction
 - polynomialRegression.py - implemented a linear regression variant, poly nomial regression
 - rf.ipynb - implemented tree-based methods, specifically Random Forest 
+- gradient_boosting.py - implemented Gradient Boosting regression
 
-### System Regression
-- mainModel.ipynb - shows final model training/testing, evaluation, artifacts, and pipeline. Rerun all cells in the file 
-- productionReady.py - shows production-ready code
+### System Integration
+The following files contains our work for the system integration phase. All these files are found in the 'systemIntegration' folder.
+- mainModel.ipynb - shows final model training/testing, evaluation metrics, pipeline, and how to save it. Rerun all cells in the file to recreate the final model file 'finalModelgb.pkl'.
+- productionReady.py - shows production-ready code; takes user input for miles traveled, trip duration days, and total receipt amount then outputs a prediction using the final model.
 
 ### Model Architecture
 1. Data Processing: We retrieved data from 'public_cases.json' file (from https://github.com/8090-inc/top-coder-challenge/). We separate the input values/descriptive features into one data frame (miles_traveled, trip_duration_days, total_receipts_amount) and the expected_output into another. During feature engineering, we found which additional features to add. We added 3 derived features (cost per mile, cost per day, and miles per day) as well as a domain specific transformation (high_daily_cost_flag). Normalization was not used for this dataset for it was found to be more effective without it. Data was then split; 75% was used for training and 25% was used for testing.
@@ -37,7 +39,7 @@ The domain specific transformations we used were:
 - short_trip_flag = Check if the distance is less than 100
 - long_trip_flag  = Check if the number of days is greater than or equal to 5   
 - high_daily_cost_flag = Check if the daily cost (the receipt total / days) is greater than 150 
-Since we selected random forest for the model, we looked at the feature importances when it was initially trained. It was found that total_receipts_amount, miles_traveled, and trip_duration_days was the most important (from greatest to least) and the least important features (almost zero) was high_daily_cost_flag and short_trip_flag. Therefore, the following features were used in the final model:
+Since we selected gradient boosting for the model, we looked at the feature importances when it was initially trained. It was found that total_receipts_amount, miles_traveled, and trip_duration_days was the most important (from greatest to least) and the least important features (almost zero) was high_daily_cost_flag and short_trip_flag. Therefore, the following features were used in the final model:
 - miles_traveled
 - trip_duration_days
 - total_receipts_amount
@@ -47,4 +49,4 @@ Since we selected random forest for the model, we looked at the feature importan
 - long_trip_flag
 
 ### Deployment Instructions
-The model is saved in the finalModel.pkl file. If the model is not present, run all cells in the 'mainModel.ipynb' file. Use the model by running the 'productionReady.py' file. This script takes 3 paramters where you enter the number of miles, days, and total receipt amount. If you don't enter a whole number for miles or day neither a dollar amount for total receipt amount, the script will prompt the user to keep entering values until they're correct.
+The model is saved in the finalModelgb.pkl file. If the model is not present, run all cells in the 'mainModel.ipynb' file. Use the model by running the 'productionReady.py' file (make sure your terminal is in the 'systemIntegration' directory). This script takes 3 paramters where you enter the number of miles, days, and total receipt amount. If you don't enter a whole number for miles or day neither a dollar amount for total receipt amount, the script will prompt the user to keep entering values until they're correct.

@@ -1,5 +1,6 @@
 import joblib
 import pandas as pd
+import time
 
 # Check for input errors
 def checkErrors(days, miles, receipts):
@@ -31,6 +32,8 @@ def main():
 
     print("Calculating the predicted reimbursement...\n")
 
+    start_time = time.time()
+
     # Convert inputs to appropriate types
     user_days = int(user_days)
     user_miles = int(user_miles)
@@ -47,17 +50,20 @@ def main():
         long_trip_flag = 0
 
     # Load model and make the prediction
-    imported_model = joblib.load('finalModel.pkl')
+    imported_model = joblib.load('..\\artifacts\\finalModelgb.pkl')
     df = pd.DataFrame([{
         "miles_traveled": user_days, 
         "trip_duration_days": user_miles, 
-        "total_receipts_amount": user_receipts, 
+        "total_receipts_amount": user_receipts,
         "cost_per_mile": cost_per_mile, 
         "cost_per_day": cost_per_day, 
         "miles_per_day": miles_per_day, 
-        "long_trip_flag": long_trip_flag}])
+        "long_trip_flag": long_trip_flag
+        }])
     prediction = imported_model.predict(df)
+    end_time = time.time()
     print(f"\nPredicted reimbursement: ${prediction[0]:.2f}")
+    print(f"Execution time: {end_time - start_time:.2f} s")
 
 if __name__ == "__main__":
     main()
