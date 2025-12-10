@@ -1,0 +1,130 @@
+---
+title: "Final Technical Report"
+author: "Group 7"
+date: 12/15/2025
+date-format: long
+number-sections: true
+number-depth: 2
+# jupyter: python3
+format:
+  html:
+    toc: true
+    toc-location: right
+    toc-title: "On this page"
+    number-sections: true
+    number-depth: 2
+    html-math-method: katex
+    embed-resources: true
+    # mermaid:
+      # theme: forest
+---
+
+### Executive summary for business stakeholders
+Problem: This system is a reverse-engineered 60-year-old travel reimbursement system that uses historical data and employee interviews. Machine learning techniques were applied to see what the hidden business logic patterns were and also develop predictive models that replicate the legacy system behavior.
+
+Recommended Solution: The recommended solution is to build a fully transparent, modernized reimbursement engine that accurately replicates the legacy system’s logic while removing unintended quirks and inconsistencies. This involves using the reverse-engineered business rules, nonlinear patterns, and feature behaviors identified through interviews and machine learning analysis to construct a deterministic, well-documented ruleset.
+In parallel, a simplified and policy-aligned reimbursement model should be developed to replace outdated incentives, eliminate random variability, and ensure fairness and predictability for employees. This two-layer approach, faithful replication for transition purposes and a redesigned ruleset for long-term deployment, provides both operational continuity and strategic improvement.
+
+Solution’s Value: The proposed solution delivers value by ensuring operational continuity and compliance during the transition to a modernized reimbursement system, as accurately replicating the legacy system’s underlying behavior allows the organization to maintain consistent policy application and avoid disruptions to established financial workflows. It also enhances transparency and fairness for employees by providing documented rules, clear thresholds, and the removal of hidden incentives, which collectively eliminate guesswork, reduce attempts to game the system, and address long-standing mistrust, ultimately improving employee satisfaction and lowering administrative burden. Furthermore, the solution supports data-driven
+modernization by highlighting nonlinear business logic and unintended artifacts that have shaped reimbursement outcomes for decades, giving leadership the ability to redesign policies so they better align with current organizational objectives, curb unnecessary spending incentives, and encourage travel behaviors that reflect actual cost efficiency. In addition, it significantly reduces risk by removing sources of unexplained variability, outdated timing dependencies, and opaque decision pathways, all of which contribute to audit vulnerability and inconsistent decision making; by establishing clear and traceable logic, the organization strengthens financial accountability and creates a reimbursement system that is both predictable and defensible.
+
+Importance of the Work: This work is essential because it addresses not only a technical challenge in reviving a 60-year-old system with undocumented logic but also a broader strategic organizational need, since hidden incentives and inconsistent outcomes have long distorted employee behavior, created inequities, and generated avoidable costs. By uncovering and formalizing the true logic of the legacy system, the organization gains a clear understanding of how reimbursements have actually been determined for decades, as well as a solid path to modernize policy based on evidence rather than assumptions, which strengthens trust between employees and administration through increased transparency and supports the development of a scalable, auditable, and maintainable reimbursement infrastructure. Taken together, these improvements transform a historically opaque and outdated system into one that is transparent, data driven, and prepared to support the organization well into the future.
+
+### Methodology and approach description
+**About the Data:** We have 1,000 different data entries provided to us by the legacy system to train and test our model. This data was provided to us in a JSON file. Every schema has a subschema called “input” and has the following features: trip duration days, miles traveled, and total receipts amount. There is another key-value pair in each schema containing the expected output. All of the trip duration days and miles traveled data is provided as positive integers while the total receipts amount and the expected output is provided as a positive float number, where the expected amount is rounded to 2 decimal places. Below are statistical summaries and frequency distributions of each of the descriptive features and target features. All scatter plots, created using matplotlib, had the show fliers/outliers parameter set to “true”. However, as you can see in all of the scatter plots, there were no outliers present for any features.
+
+Below are diagrams and their analyses of the “Total Receipt Amounts” feature.
+
+![](boxplotTotalAmnt.png)
+![](distTotalAmnt.png)
+
+The descriptive feature “total receipt amounts” had the following statistics: Mean of 1211.05687, standard deviation of 742.85418, minimum of 1.42000, 25% of the data is below (Quartile 1) 30.37750, 50% of the data is below/above (Quartile 2) 1171.90000, 75% of the data is below (Quartile 3) 1881.10500, and the maximum value is 2503.46000. From this, we can conclude that the "Total Receipts Amount" values are slightly skewed right since the mean is greater than the quartile 2, also known as the median. We can also see the reimbursement amount most often given is between $250 and $500 dollars.
+
+Below are diagrams and their analyses of the “Miles Traveled” feature.
+
+![](boxplotMiles.png)
+![](distMiles.png)
+
+The descriptive feature “Miles Traveled” had the following statistics: mean of 597.41374, standard deviation of 351.29979, minimum value of 5.00000, quartile 1 is 275.96000, quartile 2 is 621.00000, quartile 3 is 893.00000, and the maximum value is 1317.07000. The data for "Miles Traveled" is skewed to the left since the mean is less than the median/50% of the data. We can also see that most miles traveled from people in this dataset is between 0 and about 200 miles.
+
+Below are diagrams and their analyses of the “Trip Duration Days” feature.
+
+![](boxplotDays.png)
+![](distDays.png)
+
+The descriptive feature “Trip Duration Days” has the following statistics: mean of 7.043000, a standard deviation of 3.926139, a minimum value of 1, quartile 1 of 4, quartile 2 of 7, quartile 3 of 10, and a maximum value of 14. The data for "Trip Durations Days" is skewed to the right since the mean is greater than the median (50%) but only by about 0.043. We can also see that the number of days most people went on for their reimbursement requests were between 4 to 6 days.
+
+Below are diagrams and their analyses of the expected output.
+
+![](boxplotOutput.png)
+![](distOutput.png)
+
+The expected output from this dataset has the following statistics: mean of 1349.114030, standard deviation of 470.316464, minimum of 117.240000, quartile 1 of 1019.297500, quartile 2 of 1454.260000, quartile 3 of 1711.122500, and a maximum value of 2337.730000. This data is skewed to the left since the mean is less than the median. We can also see that the most common reimbursement amount given is between about $1500 and $2000.
+
+The correlation and scatter matrix can also be seen below between all the descriptive features as well as the target feature.
+
+![](scatterplot.png)
+
+| | miles_traveled | trip_duration_days | total_receipts_amount | expected_output | 
+|---------|---------|---------|---------|---------|
+| miles_traveled | 1 | 0.046050 | 0.131548 | 0.431662 |
+| trip_duration_days | 0.046050 | 1 | 0.132897 | 0.513509 |
+| total_receipts_amount | 0.131548 | 0.132897 | 1 | 0.704035 |
+| expected_output | 0.431662 | 0.513509 | 0.704035 | 1 |
+
+As we can see in the scatter matrix, there are positive correlations between Miles Traveled vs. Expected Output and Total Receipts Amount vs. Expected Output. There is no correlation/the points are very scattered for Miles Traveled vs. Total Receipts Amount. There are vertical/horizontal lines, meaning there is also no correlation, between Miles Traveled vs. Trip Duration Days, Trip Duration Days vs. Expected Output, and Tip Duration Days vs. Total Receipts Amount. This can also be seen in the correlation coefficient matrix. In this matrix, the closer to 1 the coefficients are, the higher the correlation. The closer to 0 the coefficient is, the lower the correlation is. The highest correlation we see (besides the correlations between each feature and itself) is Expected Output and the Total Receipts Amount. The lowest correlation is Miles Traveled and Trip Duration Days.
+
+Analysis was then conducted to check for any missing data values present in the JSON file. Using the .isnull() function from Pandas, it was found that there were no missing data values present for any features. For that reason, in addition to the lack of presence of outliers, no data cleansing was then prior to any training/testing done for the individual models.
+
+**Feature Engineering:** From the current features we have, we can create other features such as derived features, interaction/polynomial features, and domain specific transformations. The derived features include cost per mile, cost per day, and miles per day. The cost per mile feature is the receipt total divided by the distance traveled to get the average amount of money spent per mile. Another derived feature was the cost per day, where we get the average amount of money spent per day by taking the receipt total divided by the number of days. The final
+derived feature is the miles per day feature, where we take the distance and divide by the number of days to get the average amount of miles traveled per day. Polynomial features were also tested with a degree of 2. Since there were three features, and all were numerical, the polynomial features presented were the original features, as well as one feature multiplied by one other, and each feature squared. We also have domain specific transformations: short trip flag, long trip flag, and highly daily cost flag. The short trip flag is true if the distance is less than 100. The long trip flag is true if the number of days is less than 5. The high daily cost flag is true if the daily cost (calculated by taking the receipt total divided by the number of days traveled) is greater than 150.
+
+For our models, we decided to only use domain transformations and derived features for all models. Polynomial features were only used in the polynomial regression model that was tested. To determine which additional features would be best to use (in addition to the original descriptive features), the feature importances were taken from each model and for the model we selected (gradient boosting) importances that were closest to zero (< 0.01) were not included in the final model.
+
+### Model performance analysis and comparison
+To ensure fair evaluation across all candidate models, each algorithm was trained using the same dataset split (75% training, 25% testing), the same derived feature set and the same accuracy metrics. The metrics used to compare performance included the R² score, Mean Absolute Error (MAE) and Accuracy within 5%. These metrics were chosen to capture different aspects of model quality, including variance explained, average dollar error, and near exact prediction accuracy.
+
+**Model Results:**
+
+| Model | R² Score | MAE | Within 5% Accuracy |
+|---------|------|-------|--------|
+| Polynomial Regression | 0.9282 | 84.86 | 50.00% |
+| Random Forest | 0.9441 | 72.23 | 60.80% | 
+| Decision Rule Extraction | 0.886 | 107.13 | 43.60% |
+| Gradient Boosting | 0.9433 | 71.53 | 60.00% |
+
+Based on the evaluated models, the Gradient Boosting algorithm demonstrated the strongest overall performance, and which therefore was decided to be the best candidate for deployment. The model attained a high R² Score of 0.9433, indicating that it was able to explain a large proportion of the variance in reimbursement outcomes. In addition, it achieved a relatively low Mean Absolute Error (MAE) of 71.53, which can signify a strong ability to predict with small average deviations from the actual values. The model also produced a Within 5 Percent Accuracy of 60.00 percent, placing it relatively high compared to other models tested. With this, gradient boosting proved to be more accurate than half of the models, and only contended with Random Forest; of which had a higher MAE. Taken together, these results suggest that the Gradient Boosting model possesses a high capacity to learn complex nonlinear relationships inherent in the data and can deliver predictions that remain close to observed outcomes with observable consistency. While Gradient Boosting algorithms are sometimes sensitive to overfitting due to their iterative nature and high flexibility, in this assignment, these
+risks were adequately mitigated through regularization, careful tuning of hyperparameters, and systematic validation procedures.
+
+The Random Forest model ended up performing pretty similarly to the Gradient Boosting model and served as a useful point of comparison for everything else we tested. It actually had the highest R² score at 0.9441, which shows that it did a slightly better job than the other models at understanding the patterns in the data and explaining why the reimbursement values turned out the way they did. It also had the second lowest MAE at 72.23, meaning its predictions were usually fairly close to the real numbers and didn’t drift too far off in most cases. Most of the time, it stayed pretty close to the truth and didn’t produce many large mistakes. Another strong sign of its performance is that Random Forest had the best Within-5-Percent accuracy at 60.80 percent. In other words, it produced the most predictions that were almost spot-on. This shows that the model wasn’t just good on average, it was consistently accurate across a large share of the cases. Altogether, these results show that Random Forest is a reliable and steady option for this kind of prediction task. Even though it isn’t as easy to interpret as some simpler models, its mix of accuracy, consistency, and overall strong performance makes it a very appealing choice when getting the best predictions is the main goal.
+
+Polynomial Regression had moderate performance and its results proved to have certain strengths, although it did not match the predictive accuracy of the tree-based ensemble methods. With an R² Score of 0.9282, it explained less of the variance in the target variable than the Gradient Boosting and Random Forest models. The MAE of 84.86 was comparatively large, and its Within 5 Percent Accuracy of 50.00 percent indicated that it generated substantially fewer highly accurate predictions. These results suggest that although the introduction of polynomial terms increased the model’s ability to capture fundamental nonlinear relationships, it remained
+insufficient to represent the more intricate interactions that characterize the reimbursement logic. Polynomial models are also known to be sensitive to outliers due to the influence that extreme values exert on the least squares objective function. This phenomenon likely contributed to the higher overall error and the lower precision observed in this evaluation.
+
+The Decision Rule Extraction model was included in order to assess the performance of a more transparent and interpretable methodology. Despite its interpretability advantages, it achieved the weakest predictive outcomes across nearly all metrics. The R² Score of 0.8860 indicated that it explained considerably less variation in reimbursement values. The MAE of 107.13 was the highest among all tested models, and its Within 5 Percent Accuracy of 43.60 percent showed that it rarely produced predictions that were close to the actual values. These results point to the inherent limitations of shallow rule-based structures when modeling complex business processes. The reimbursement rules used in operational systems are often detailed, multifaceted, and dependent on subtle interactions, none of which can be effectively represented by a low-depth decision rule set. The simplicity of the extracted rules, although beneficial for transparency, ultimately constrained the model’s accuracy.
+
+To assess the impact of preprocessing strategies on model performance, additional experiments were conducted to compare various normalization techniques within the Random Forest pipeline. Standardization and Min-Max scaling were evaluated in comparison to an approach that utilized no normalization. As anticipated for tree-based models, the introduction of normalization techniques did not yield measurable performance improvements. The highest performance scores were obtained when no normalization was applied. This outcome is consistent with the theoretical expectation that tree-based algorithms are inherently insensitive to the absolute scale of features due to their reliance on threshold-based splitting operations. The findings of this auxiliary analysis also support the selection of Gradient Boosting, which similarly benefits from the capacity to handle heterogeneous feature magnitudes without additional scaling procedures.
+
+Considering the results across all metrics, Gradient Boosting was ultimately selected as the final model for deployment. Its superior predictive performance, strong ability to generalize, resilience to variations in feature distributions, and capacity to model highly nonlinear interactions make it a strong fit for the target application. The complete training, validation, and evaluation processes have been documented in full detail, and a production ready implementation has been finalized for operational use.
+
+### Business insights and discovered patterns
+The analysis of system behavior reveals several consistent patterns that shape reimbursement outcomes and influence user behavior. One of the strongest trends is that the system rewards moderate-length, high-efficiency trips, with the most favorable reimbursements occurring for trips lasting around four to six days and maintaining an ideal mileage-per-day range of roughly 180 to 220 miles. Trips that fall outside these ranges, of which can be either very short, very long, or characterized by extremely high or low mileage, are those that tend to experience diminishing returns or clear penalties, indicating that duration and efficiency operate through nonlinear rules rather than simple proportional scaling.
+
+Another major insight is that spending does not correlate with reimbursement in a linear or intuitive way. Smaller receipt totals or moderate daily spending often result in better outcomes than higher spending, which frequently triggers soft caps or declining reimbursement rates. This suggests the system incorporates diminishing returns for spending, as well as thresholds that
+penalize excessive cost accumulation. The presence of a common payout clustering around a fixed ceiling, often near eight hundred dollars, further reinforces the idea that internal caps override many of the user-provided inputs.
+
+Additionally, temporal factors appear to influence reimbursement behavior, even though these effects do not follow official policy. Certain periods, such as specific days of the week or end-of-quarter timing, tend to produce slightly higher reimbursements, while others consistently underperform. These timing effects may stem from legacy batch-processing rhythms, outdated business rules, or accumulated quirks in the system’s logic, but regardless of origin, they introduce variability that users cannot easily predict.
+
+The system also displays nonlinear and sometimes contradictory interactions among its core variables. For example, duration effects can interact with mileage, spending thresholds can interact with efficiency, and temporal factors may amplify or offset penalties in unpredictable ways. As a result, two trips with nearly identical characteristics can yield noticeably different reimbursement amounts, with a variability that typically falls within a five to ten percent range. This inconsistency suggests that the system contains hidden modifiers, rounding mechanisms, or legacy behaviors that introduce noise into the final output.
+
+Taken together, these discovered patterns reflect a reimbursement system shaped by complex, nonlinear rules, hidden thresholds, and legacy artifacts that significantly influence outcomes. The behavior of the system encourages optimization, creates uneven predictability, and contributes to perceptions of opacity and unfairness. Understanding these trends is essential for faithfully replicating the legacy logic and designing a modernized system that is transparent, consistent, and aligned with current organizational goals.
+
+### Recommendations for system improvement
+The final system relies on the Gradient Boosting Regressor as the primary predictive model due to its strong consistency across multiple data splits and its ability to maintain low error variance across both midrange and high variability trips. The model is effective at capturing nonlinear relationships among key predictors such as distance, cost per mile, and receipt spending, which explains its superior performance relative to other approaches. To maintain this level of accuracy during deployment, the system should consistently apply the full feature engineering pipeline before inference. This ensures that the model receives inputs in the same structure and format used during training. Input validation should also be implemented to identify atypical or unusual trip patterns so that potential data issues can be flagged before predictions are produced.
+
+The model benefits greatly from several engineered features that enhance its predictive capacity and improve interpretability. Features such as cost per mile, cost per day, miles per day, and the long trip indicator play an important role because they capture ratios and behavioral patterns that reflect underlying spending behavior. These features support the ability of the Gradient Boosting model to detect nonlinearity in trip costs and to align predictions with known domain logic. Ensuring that these engineered variables are consistently generated during inference is essential for sustained performance.
+
+The modeling workflow used in the mainModel.ipynb notebook provides a reproducible and transparent foundation for future iterations of the system. This workflow includes the preparation of data, integration of engineered features, hyperparameter tuning procedures, and evaluation using metrics such as MAE, R squared, and accuracy within specified thresholds. The notebook
+also includes the export of a production ready model, which facilitates deployment and version control. Maintaining this structured workflow is important for preserving reliability as the system evolves.
+
+Further improvements can strengthen the long term effectiveness of the system. Expanded hyperparameter tuning, including exploration of deeper trees and additional estimators, may yield incremental performance gains. Evaluation of more advanced boosting algorithms such as XGBoost, LightGBM, or CatBoost could identify models that outperform the current approach under specific conditions. The system would also benefit from more robust cross validation strategies and improved tools for model explainability, which can support better understanding of prediction behavior in operational contexts. Periodic retraining with new trip data is essential because reimbursement patterns are likely to shift over time. Ongoing monitoring of prediction error trends will help identify when retraining is necessary and ensure that the model continues to perform effectively in real world settings.
