@@ -43,8 +43,10 @@ We decided to not use polynomial features since we found that polynomial regress
 The domain specific transformations we used were:
 - short_trip_flag = Check if the distance is less than 100
 - long_trip_flag  = Check if the number of days is greater than or equal to 5   
-- high_daily_cost_flag = Check if the daily cost (the receipt total / days) is greater than 150 
+- high_daily_cost_flag = Check if the daily cost (the receipt total / days) is greater than 150
+  
 Since we selected gradient boosting for the model, we looked at the feature importances when it was initially trained. It was found that total_receipts_amount, miles_traveled, and trip_duration_days was the most important (from greatest to least) and the least important features (almost zero) was high_daily_cost_flag and short_trip_flag. Therefore, the following features were used in the final model:
+
 - miles_traveled
 - trip_duration_days
 - total_receipts_amount
